@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateObject } from 'ai';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { z } from 'zod';
-import { scrapeWebsite, searchCompanyInfo } from '@/lib/scraper';
+import { scrapeMultiplePages, searchCompanyInfo } from '@/lib/scraper';
 import { BRAND_ANALYSIS_SYSTEM_PROMPT, buildUserMessage } from '@/lib/prompts';
 
-export const maxDuration = 60; // Vercel serverless timeout
+export const maxDuration = 120; // 多頁爬取需要更長時間
 
 // 定義分析結果的 Zod Schema — 確保 LLM 輸出型別安全
 const AnalysisSchema = z.object({
@@ -68,13 +68,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 1: 使用 Jina AI Reader 爬取官網（Markdown 格式）
+    // Step 1: 使用 Jina AI Reader 爬取官網多個頁面（首頁 + about / service / portfolio 等）
     let websiteContent = '';
     const targetUrl = url || '';
 
     if (targetUrl) {
       try {
-        websiteContent = await scrapeWebsite(targetUrl);
+        websiteContent = await scrapeMultiplePages(targetUrl);
       } catch (e) {
         const message = e instanceof Error ? e.message : 'Unknown error';
         websiteContent = `無法爬取網站 ${targetUrl}: ${message}`;

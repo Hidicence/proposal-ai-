@@ -49,7 +49,7 @@ function CardHead({ icon: Icon, title }: { icon: React.ElementType; title: strin
 /* ---- Step Progress ---- */
 
 const analysisSteps = [
-  { icon: Globe, label: '爬取官網內容', desc: '使用 Jina AI Reader 擷取網站資料', duration: 8000 },
+  { icon: Globe, label: '爬取官網多頁內容', desc: '自動探索首頁、關於、服務、作品集等頁面', duration: 15000 },
   { icon: SearchIcon, label: '搜尋公開資訊', desc: '搜尋引擎蒐集品牌相關資料', duration: 6000 },
   { icon: Brain, label: 'AI 深度分析', desc: 'AI 正在進行 SWOT、痛點、策略分析', duration: 30000 },
 ];
