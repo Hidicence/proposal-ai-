@@ -1,36 +1,335 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Proposal AI
 
-## Getting Started
+> 為中小企業主打造的 AI 行銷提案工具——輸入公司名稱或官網網址，5 分鐘內自動產出品牌分析、SWOT、行銷策略與 KPI 提案報告。
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=flat-square&logo=tailwindcss)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 目錄
+
+- [功能介紹](#功能介紹)
+- [技術架構](#技術架構)
+- [快速開始](#快速開始)
+- [環境變數說明](#環境變數說明)
+- [專案結構](#專案結構)
+- [API 說明](#api-說明)
+- [分析報告內容](#分析報告內容)
+- [Roadmap](#roadmap)
+- [常見問題](#常見問題)
+
+---
+
+## 功能介紹
+
+Proposal AI 透過 AI 自動化以下完整流程：
+
+| 步驟 | 說明 |
+|------|------|
+| **情報蒐集** | 使用 Jina AI Reader 爬取目標公司官網，轉為結構化 Markdown |
+| **公開資訊搜尋** | 透過 Jina AI Search 搜尋品牌相關公開資訊，自動 fallback 至 DuckDuckGo |
+| **AI 深度分析** | 使用 Kimi K2（Moonshot AI）進行結構化品牌分析 |
+| **報告呈現** | 於 Dashboard 即時展示分析結果，包含公司概況、SWOT、痛點、策略、KPI |
+
+### 分析報告包含
+
+- 公司概況（名稱、產業、成立時間、產品/服務、品牌定位）
+- SWOT 分析（優勢、劣勢、機會、威脅）
+- 行銷痛點診斷（至少 3 點，含現象描述與影響說明）
+- 推薦行銷策略（至少 4 條，含策略名稱、具體作法、預期效益）
+- KPI 目標建議（至少 3 項，含目前值、目標值、達成時間、進度視覺化）
+
+---
+
+## 技術架構
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      Frontend                           │
+│   Next.js 16 (App Router) + React 19 + Tailwind CSS v4 │
+│   Framer Motion (動畫) + Lucide React (圖示)            │
+└───────────────────────┬─────────────────────────────────┘
+                        │ API Route
+┌───────────────────────▼─────────────────────────────────┐
+│                   /api/analyze                          │
+│                                                         │
+│  1. Jina AI Reader  → 官網內容 (Markdown)               │
+│  2. Jina AI Search  → 公開品牌資訊                      │
+│     └── fallback: DuckDuckGo HTML 搜尋                  │
+│  3. Vercel AI SDK + Kimi K2 → generateObject()          │
+│     └── Zod Schema 確保輸出型別安全                      │
+└─────────────────────────────────────────────────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 技術選型說明
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| 技術 | 用途 | 選擇原因 |
+|------|------|----------|
+| **Next.js 16** | 全端框架 | App Router、API Routes、Vercel 部署最佳化 |
+| **Vercel AI SDK** | LLM 串接 | `generateObject()` 搭配 Zod，確保 LLM 輸出型別安全 |
+| **Kimi K2 (Moonshot AI)** | 分析引擎 | 長 context 支援、中文理解能力強、OpenAI 相容 API |
+| **Jina AI Reader/Search** | 網頁爬取 | 支援 JS 渲染、免費額度充足、輸出 LLM-ready Markdown |
+| **Zod** | Schema 驗證 | 搭配 AI SDK 的 `generateObject` 做結構化輸出 |
+| **Tailwind CSS v4** | 樣式 | 暗色系設計、glassmorphism 效果 |
+| **Framer Motion** | 動畫 | 頁面進場動畫、載入動效 |
+| **cheerio** | HTML 解析 | DuckDuckGo fallback 搜尋結果解析 |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 快速開始
 
-To learn more about Next.js, take a look at the following resources:
+### 前置需求
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Node.js 18+
+- npm 或 yarn
+- Kimi API Key（必填）：[申請連結](https://platform.moonshot.cn/)
+- Jina AI API Key（選填）：[申請連結](https://jina.ai/)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 安裝
 
-## Deploy on Vercel
+```bash
+# 1. Clone 專案
+git clone https://github.com/YOUR_USERNAME/proposal-ai.git
+cd proposal-ai
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# 2. 安裝依賴
+npm install
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 3. 設定環境變數
+cp .env.example .env.local
+# 編輯 .env.local，填入 API Key
+
+# 4. 啟動開發伺服器
+npm run dev
+```
+
+開啟 [http://localhost:3000](http://localhost:3000) 即可看到首頁。
+前往 [http://localhost:3000/dashboard](http://localhost:3000/dashboard) 開始使用 AI 分析功能。
+
+### 建置生產版本
+
+```bash
+npm run build
+npm run start
+```
+
+---
+
+## 環境變數說明
+
+建立 `.env.local` 檔案並填入以下設定：
+
+```env
+# Kimi (Moonshot AI) API Key — 必填
+# 申請：https://platform.moonshot.cn/
+KIMI_API_KEY=sk-xxxxx
+
+# Jina AI API Key — 選填
+# 不填仍可使用，但每分鐘請求次數較低（20 RPM → 500 RPM）
+# 申請：https://jina.ai/（免費帳號含 1000 萬 tokens）
+JINA_API_KEY=jina_xxxxx
+```
+
+> **注意**：`.env.local` 已加入 `.gitignore`，不會被提交至版本控制。
+
+---
+
+## 專案結構
+
+```
+proposal-ai/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── analyze/
+│   │   │       └── route.ts        # 核心 API：爬取 + 分析
+│   │   ├── dashboard/
+│   │   │   └── page.tsx            # 主要功能頁面
+│   │   ├── globals.css             # 全域樣式（glassmorphism、動畫）
+│   │   ├── layout.tsx              # 根佈局
+│   │   └── page.tsx                # Landing Page
+│   ├── components/
+│   │   ├── Navbar.tsx              # 導覽列
+│   │   ├── Hero.tsx                # Hero 區塊
+│   │   ├── Features.tsx            # 功能介紹區塊
+│   │   ├── HowItWorks.tsx          # 運作方式區塊
+│   │   ├── Pricing.tsx             # 定價區塊
+│   │   └── Footer.tsx              # 頁尾
+│   └── lib/
+│       ├── prompts.ts              # LLM System Prompt + 型別定義
+│       └── scraper.ts              # Jina AI 爬蟲 + DuckDuckGo fallback
+├── public/                         # 靜態資源
+├── .env.example                    # 環境變數範本
+├── .env.local                      # 本地環境變數（不提交）
+├── next.config.ts
+├── tsconfig.json
+└── package.json
+```
+
+---
+
+## API 說明
+
+### `POST /api/analyze`
+
+分析指定公司的品牌與行銷狀況。
+
+**請求 Body：**
+
+```json
+{
+  "url": "https://www.example.com",    // 公司官網（二擇一）
+  "companyName": "範例公司"            // 公司名稱（二擇一）
+}
+```
+
+**成功回應 (200)：**
+
+```json
+{
+  "success": true,
+  "analysis": {
+    "company": {
+      "name": "範例公司",
+      "nameEn": "Example Corp",
+      "industry": "電商 / 消費品",
+      "founded": "2018",
+      "products": "自有品牌美妝產品",
+      "location": "台灣台北",
+      "positioning": "平價高質感的本土美妝品牌"
+    },
+    "swot": {
+      "strengths": ["..."],
+      "weaknesses": ["..."],
+      "opportunities": ["..."],
+      "threats": ["..."]
+    },
+    "painPoints": [
+      { "issue": "...", "impact": "..." }
+    ],
+    "strategies": [
+      { "name": "...", "description": "...", "benefit": "..." }
+    ],
+    "kpis": [
+      {
+        "name": "...",
+        "current": "...",
+        "target": "...",
+        "timeframe": "...",
+        "progressPct": 30
+      }
+    ]
+  },
+  "meta": {
+    "url": "https://www.example.com",
+    "companyName": "範例公司",
+    "analyzedAt": "2026-02-20T00:00:00.000Z"
+  }
+}
+```
+
+**錯誤回應：**
+
+```json
+{ "error": "請提供公司網址或公司名稱" }  // 400
+{ "error": "KIMI_API_KEY 未設定" }        // 500
+{ "error": "分析過程發生錯誤: ..." }       // 500
+```
+
+**處理流程：**
+
+```
+POST /api/analyze
+  ├── Step 1: Jina AI Reader 爬取官網 (timeout: 20s)
+  ├── Step 2: Jina AI Search 搜尋品牌資訊 (timeout: 15s)
+  │         └── fallback: DuckDuckGo HTML (timeout: 10s)
+  └── Step 3: Kimi K2 generateObject() → AnalysisSchema
+```
+
+---
+
+## 分析報告內容
+
+分析結果由 Zod Schema 確保結構化輸出，各欄位說明如下：
+
+### `company` — 公司概況
+
+| 欄位 | 說明 |
+|------|------|
+| `name` | 公司中文名稱 |
+| `nameEn` | 公司英文名稱 |
+| `industry` | 產業與細分領域 |
+| `founded` | 成立年份 |
+| `products` | 主要產品或服務 |
+| `location` | 公司據點 |
+| `positioning` | 品牌定位（一句話） |
+
+### `swot` — SWOT 分析
+各象限至少 2 點，從行銷角度切入分析。
+
+### `painPoints` — 行銷痛點
+至少 3 點，每點包含 `issue`（現象）和 `impact`（影響）。
+
+### `strategies` — 推薦行銷策略
+至少 4 條，每條包含 `name`、`description`（具體作法）、`benefit`（預期效益）。
+
+### `kpis` — KPI 目標
+至少 3 項，每項包含指標名稱、目前估計值、目標值、達成時間與進度百分比（0–100）。
+
+---
+
+## Roadmap
+
+### v0.1 — 目前版本 ✅
+- [x] Landing Page（Hero、Features、HowItWorks、Pricing）
+- [x] Dashboard 分析介面
+- [x] Jina AI 官網爬取
+- [x] Jina AI / DuckDuckGo 搜尋
+- [x] Kimi K2 結構化品牌分析
+- [x] 分析進度動畫（三步驟）
+- [x] SWOT / 痛點 / 策略 / KPI 結果展示
+
+### v0.2 — 進行中 🚧
+- [ ] PPTX / PDF 簡報匯出（串接簡報生成 Skill）
+- [ ] 品牌意象圖生成（串接圖像生成 Skill）
+- [ ] 提案編輯功能（在線修改分析內容）
+
+### v0.3 — 規劃中 📋
+- [ ] 使用者登入 / 提案儲存
+- [ ] 每月報告配額控管
+- [ ] 提案範本管理
+- [ ] 競品比較（多家公司同時分析）
+- [ ] Google Search Console 整合（拉取真實搜尋數據）
+
+---
+
+## 常見問題
+
+**Q：分析需要多久？**
+A：通常 30–60 秒。Vercel Serverless 最長等待時間設定為 60 秒。
+
+**Q：沒有 Jina API Key 也可以用嗎？**
+A：可以。不填 `JINA_API_KEY` 仍能正常運作，差異在於 Jina 的免費額度為每分鐘 20 次請求（有 Key 則為 500 次）。
+
+**Q：輸入公司名稱或 URL 都可以嗎？**
+A：都可以。程式會根據輸入是否包含 `.` 且不含空格來判斷是否為 URL。建議輸入官網 URL 可取得更精準的分析結果。
+
+**Q：分析結果的準確度如何？**
+A：分析基於公開資料（官網內容 + 搜尋結果），準確度取決於目標公司的網路曝光度。資料不足時，AI 會根據產業常識進行保守推斷並標注。
+
+**Q：如何部署到 Vercel？**
+A：將專案推送至 GitHub 後，在 Vercel 匯入 repository，並在 Project Settings → Environment Variables 中加入 `KIMI_API_KEY`（與 `JINA_API_KEY`），即可一鍵部署。
+
+---
+
+## License
+
+MIT License — 自由使用、修改與分發。
+
+---
+
+*Built with [Next.js](https://nextjs.org/) · Powered by [Kimi K2](https://platform.moonshot.cn/) · Data by [Jina AI](https://jina.ai/)*

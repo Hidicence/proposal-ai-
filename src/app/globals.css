@@ -1,26 +1,154 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: #09090B;
+  --color-foreground: #F4F4F5;
+  --color-primary: #818CF8;
+  --color-primary-dark: #6366F1;
+  --color-cta: #10B981;
+  --color-cta-hover: #34D399;
+  --color-surface: rgba(255,255,255,0.05);
+  --color-text-muted: #A1A1AA;
+  --color-border: rgba(255,255,255,0.08);
+  --color-dark-bg: #09090B;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-poppins), system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #09090B;
+  color: #F4F4F5;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Glass card */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Animated gradient mesh background */
+.mesh-gradient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mesh-gradient::before,
+.mesh-gradient::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.4;
+}
+
+.mesh-gradient::before {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, #6366F1, transparent 70%);
+  top: -200px;
+  left: -100px;
+  animation: drift1 25s ease-in-out infinite;
+}
+
+.mesh-gradient::after {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #06B6D4, transparent 70%);
+  bottom: -150px;
+  right: -100px;
+  animation: drift2 30s ease-in-out infinite;
+}
+
+.mesh-blob-3 {
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #8B5CF6, transparent 70%);
+  filter: blur(120px);
+  opacity: 0.3;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: drift3 20s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes drift1 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(80px, 40px); }
+  66% { transform: translate(-40px, 60px); }
+}
+
+@keyframes drift2 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(-60px, -30px); }
+  66% { transform: translate(50px, -50px); }
+}
+
+@keyframes drift3 {
+  0%, 100% { transform: translate(-50%, -50%); }
+  33% { transform: translate(-40%, -60%); }
+  66% { transform: translate(-60%, -40%); }
+}
+
+/* Grid overlay */
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* Glow effects */
+.glow-indigo { box-shadow: 0 0 40px rgba(99,102,241,0.15); }
+.glow-emerald { box-shadow: 0 0 40px rgba(16,185,129,0.15); }
+
+/* Gradient text */
+.text-gradient {
+  background: linear-gradient(135deg, #818CF8, #06B6D4, #10B981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtle float animation */
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: gentle-float 5s ease-in-out infinite;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
